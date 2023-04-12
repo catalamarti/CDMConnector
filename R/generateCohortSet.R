@@ -322,7 +322,12 @@ generateCohortSet <- function(cdm,
 
     sql <- SqlRender::translate(sql, targetDialect = CDMConnector::dbms(con)) %>%
       SqlRender::splitSql()
-
+    
+    sql <- lapply(sql, function(x) {
+      gsub("'-1 \\* 0 day'", "'0 day'", x)
+    }) %>%
+      unlist()
+    
     purrr::walk(sql, ~DBI::dbExecute(con, .x, immediate = TRUE))
     cli::cli_progress_update()
   }
